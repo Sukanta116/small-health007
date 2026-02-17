@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Small Heath — Built for the Streets</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@300;400;600;700&family=Barlow+Condensed:wght@400;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+:root{
+  --black:#000;--dark:#080808;--mid:#0f0f0f;--border:#1a1a1a;
+  --red:#ff0000;--red2:#cc0000;--white:#fff;--gray:#555;--dim:#222;
+}
+body{background:var(--black);color:var(--white);font-family:'Barlow Condensed',sans-serif;overflow-x:hidden;cursor:crosshair;}
+
+/* SCAN LINES */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.12) 3px,rgba(0,0,0,.12) 4px);}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:500;background:rgba(0,0,0,.96);backdrop-filter:blur(6px);
+  border-bottom:3px solid var(--red);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.18em;cursor:pointer;color:var(--white);
+  text-shadow:0 0 20px rgba(255,0,0,.6);transition:.2s;}
+.nav-logo:hover{color:var(--red);text-shadow:0 0 30px rgba(255,0,0,1);}
+.nav-links{display:flex;gap:2.5rem;list-style:none;}
+.nav-links a,.nav-links button{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.18em;
+  color:var(--gray);text-decoration:none;background:none;border:none;cursor:pointer;transition:.15s;position:relative;}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;background:var(--red);transition:.2s;}
+.nav-links a:hover::after,.nav-links a.active-link::after{width:100%;}
+.nav-links a:hover,.nav-links button:hover,.nav-links a.active-link{color:var(--white);}
+.nav-cart{display:flex;align-items:center;gap:.4rem;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;
+  letter-spacing:.14em;color:var(--white);background:var(--red);border:none;cursor:pointer;
+  padding:.4rem .9rem;position:relative;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+  transition:.15s;}
+.nav-cart:hover{background:var(--red2);}
+.cart-count{background:var(--white);color:var(--red);font-size:.6rem;font-weight:900;
+  width:16px;height:16px;border-radius:0;display:flex;align-items:center;justify-content:center;
+  position:absolute;top:-5px;right:-5px;font-family:'Anton',sans-serif;}
+
+/* PAGES */
+.page{display:none}.page.active{display:block;animation:pageIn .25s ease forwards}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.2em;
+  border:none;cursor:pointer;transition:all .15s;padding:.7rem 1.8rem;text-decoration:none;position:relative;overflow:hidden;}
+.btn::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,.06);transform:translateX(-100%);transition:.25s;}
+.btn:hover::before{transform:translateX(0);}
+.btn-primary{background:var(--red);color:#fff;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+  box-shadow:0 0 20px rgba(255,0,0,.4);}
+.btn-primary:hover{background:var(--red2);box-shadow:0 0 35px rgba(255,0,0,.7);transform:scale(1.02);}
+.btn-outline{background:transparent;color:var(--white);border:2px solid #2a2a2a;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);}
+.btn-outline:hover{border-color:var(--red);color:var(--red);}
+.btn-ghost{background:transparent;color:var(--gray);border:1px solid #1a1a1a;}
+.btn-ghost:hover{color:var(--white);border-color:#333;}
+.btn-full{width:100%;}
+.btn-lg{padding:.85rem 2.2rem;font-size:1.15rem;}
+.btn-xl{padding:1rem 2.8rem;font-size:1.3rem;}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:flex-end;
+  padding:4rem 2.5rem;position:relative;overflow:hidden;background:var(--black);}
+.hero-bg{position:absolute;inset:0;
+  background:radial-gradient(ellipse at 80% 50%,rgba(255,0,0,.08) 0%,transparent 60%),
+    repeating-linear-gradient(90deg,transparent,transparent 80px,rgba(255,0,0,.015) 80px,rgba(255,0,0,.015) 81px),
+    repeating-linear-gradient(0deg,transparent,transparent 80px,rgba(255,0,0,.015) 80px,rgba(255,0,0,.015) 81px);}
+.hero-slash{position:absolute;top:0;right:0;width:50%;height:100%;
+  background:linear-gradient(135deg,transparent 50%,rgba(255,0,0,.04) 100%);
+  clip-path:polygon(50% 0,100% 0,100% 100%);}
+.hero-slash2{position:absolute;bottom:0;left:0;width:100%;height:6px;background:var(--red);
+  box-shadow:0 0 30px rgba(255,0,0,.8);}
+.hero-number{position:absolute;right:-0.05em;top:50%;transform:translateY(-55%);
+  font-family:'Anton',sans-serif;font-size:clamp(12rem,35vw,32rem);
+  color:rgba(255,0,0,.04);line-height:1;pointer-events:none;letter-spacing:-.02em;
+  text-shadow:0 0 80px rgba(255,0,0,.1);}
+.hero-eyebrow{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.45em;
+  color:var(--red);margin-bottom:1.2rem;display:flex;align-items:center;gap:1rem;
+  text-shadow:0 0 12px rgba(255,0,0,.6);}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';display:inline-block;height:2px;background:var(--red);
+  box-shadow:0 0 8px rgba(255,0,0,.8);}
+.hero-eyebrow::before{width:40px;}
+.hero-eyebrow::after{width:20px;}
+.hero-title{font-family:'Anton',sans-serif;font-size:clamp(5rem,14vw,13rem);
+  font-weight:400;line-height:.85;letter-spacing:-.01em;text-transform:uppercase;
+  text-shadow:2px 2px 0 rgba(255,0,0,.3),0 0 40px rgba(255,0,0,.1);}
+.hero-title .slash{color:var(--red);-webkit-text-stroke:0;
+  text-shadow:0 0 30px rgba(255,0,0,.9),2px 2px 0 rgba(200,0,0,.5);}
+.hero-title .outline{-webkit-text-stroke:2px rgba(255,255,255,.15);color:transparent;}
+.hero-sub{margin-top:1.5rem;font-size:1.1rem;color:#444;max-width:420px;line-height:1.65;
+  font-weight:600;letter-spacing:.04em;text-transform:uppercase;
+  border-left:4px solid var(--red);padding-left:1rem;
+  box-shadow:-4px 0 12px rgba(255,0,0,.2);}
+.hero-actions{margin-top:2rem;display:flex;gap:1rem;flex-wrap:wrap;}
+.hero-kpis{position:absolute;right:2.5rem;bottom:4rem;display:flex;flex-direction:column;gap:2rem;text-align:right;}
+.kpi-val{font-family:'Anton',sans-serif;font-size:2.5rem;color:var(--white);line-height:1;
+  text-shadow:0 0 20px rgba(255,0,0,.3);}
+.kpi-val span{color:var(--red);}
+.kpi-label{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:#333;font-family:'Bebas Neue',sans-serif;}
+
+/* TICKER */
+.ticker{background:var(--red);overflow:hidden;padding:.55rem 0;white-space:nowrap;
+  border-top:2px solid #ff3333;border-bottom:2px solid #cc0000;
+  box-shadow:0 0 20px rgba(255,0,0,.5);}
+.ticker-inner{display:inline-block;animation:ticker 18s linear infinite;}
+.ticker-inner span{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.32em;
+  text-transform:uppercase;color:#fff;padding:0 2rem;}
+.ticker-inner .dot{color:rgba(255,255,255,.4);padding:0 .5rem;}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* SECTION */
+.section{padding:4rem 2rem;}
+.section-header{display:flex;justify-content:space-between;align-items:flex-end;
+  margin-bottom:3rem;padding-bottom:1rem;border-bottom:1px solid var(--border);position:relative;}
+.section-header::after{content:'';position:absolute;bottom:-1px;left:0;width:80px;height:3px;
+  background:var(--red);box-shadow:0 0 10px rgba(255,0,0,.6);}
+.section-title{font-family:'Anton',sans-serif;font-size:clamp(2.5rem,5vw,4rem);
+  font-weight:400;text-transform:uppercase;letter-spacing:.02em;line-height:.92;
+  text-shadow:1px 1px 0 rgba(255,0,0,.2);}
+.section-title .r{color:var(--red);text-shadow:0 0 15px rgba(255,0,0,.5);}
+
+/* SORT */
+.sort-sel{background:#0a0a0a;color:var(--white);border:1px solid #1a1a1a;
+  font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.12em;
+  padding:.5rem .9rem;cursor:pointer;text-transform:uppercase;outline:none;}
+.sort-sel:focus{border-color:var(--red);}
+
+/* PRODUCT GRID */
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:3px;background:#0a0a0a;}
+.product-card{background:var(--black);cursor:pointer;position:relative;overflow:hidden;transition:background .2s;}
+.product-card:hover{background:#090909;}
+.product-card::before{content:'';position:absolute;inset:0;background:rgba(255,0,0,.03);opacity:0;transition:.2s;z-index:1;pointer-events:none;}
+.product-card:hover::before{opacity:1;}
+.product-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:var(--red);box-shadow:0 0 10px rgba(255,0,0,.7);
+  transform:scaleX(0);transform-origin:left;transition:.25s;z-index:2;}
+.product-card:hover::after{transform:scaleX(1);}
+
+/* PRODUCT IMAGE */
+.product-img-wrap{aspect-ratio:3/4;position:relative;overflow:hidden;border-bottom:1px solid #0d0d0d;}
+.product-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform .5s ease,filter .3s;filter:brightness(.85) contrast(1.1);}
+.product-card:hover .product-img-wrap img{transform:scale(1.07);filter:brightness(.95) contrast(1.15);}
+.product-img-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#080808,#111);
+  font-family:'Anton',sans-serif;font-size:3.5rem;color:rgba(255,0,0,.06);letter-spacing:.04em;}
+
+.badge{position:absolute;top:0;left:0;font-family:'Bebas Neue',sans-serif;font-size:.8rem;
+  letter-spacing:.2em;text-transform:uppercase;padding:.28rem .8rem;z-index:3;}
+.badge-new{background:var(--red);color:#fff;box-shadow:0 0 10px rgba(255,0,0,.5);}
+.badge-hot{background:#fff;color:#000;}
+.badge-limited{background:transparent;color:var(--red);border:1px solid var(--red);}
+
+.product-info{padding:1.1rem 1.25rem 1.4rem;}
+.product-name{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--white);margin-bottom:.1rem;line-height:1;}
+.product-sub{font-size:.72rem;color:#333;margin-bottom:.75rem;letter-spacing:.1em;
+  text-transform:uppercase;font-family:'Barlow Condensed',sans-serif;font-weight:600;}
+.product-price-row{display:flex;justify-content:space-between;align-items:center;}
+.product-price{font-family:'Anton',sans-serif;font-size:1.5rem;color:var(--red);
+  text-shadow:0 0 10px rgba(255,0,0,.3);}
+.color-dots{display:flex;gap:.3rem;}
+.color-dot{width:10px;height:10px;border:1px solid #111;}
+
+/* PRODUCT DETAIL */
+.pd-wrap{display:grid;grid-template-columns:1fr 1fr;min-height:88vh;}
+.pd-img-side{position:relative;overflow:hidden;border-right:1px solid var(--border);}
+.pd-img-side img{width:100%;height:100%;object-fit:cover;display:block;
+  filter:brightness(.85) contrast(1.1);}
+.pd-img-side::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,.6) 0%,transparent 50%),
+    linear-gradient(to right,rgba(255,0,0,.04) 0%,transparent 70%);}
+.pd-info-side{padding:3rem;display:flex;flex-direction:column;gap:1.5rem;justify-content:center;
+  background:var(--black);}
+.pd-breadcrumb{font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.2em;color:#2a2a2a;}
+.pd-breadcrumb button{background:none;border:none;color:#2a2a2a;cursor:pointer;
+  font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.2em;transition:.15s;}
+.pd-breadcrumb button:hover{color:var(--red);}
+.pd-name{font-family:'Anton',sans-serif;font-size:clamp(2.5rem,5vw,4.5rem);font-weight:400;
+  text-transform:uppercase;line-height:.9;letter-spacing:.01em;
+  text-shadow:1px 1px 0 rgba(255,0,0,.2);}
+.pd-price{font-family:'Anton',sans-serif;font-size:2.5rem;color:var(--red);
+  text-shadow:0 0 20px rgba(255,0,0,.5);}
+.pd-desc{font-size:.95rem;line-height:1.75;color:#444;
+  border-left:3px solid var(--red);padding-left:1rem;
+  font-weight:600;letter-spacing:.03em;text-transform:uppercase;
+  box-shadow:-3px 0 10px rgba(255,0,0,.15);}
+.pd-label{font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.22em;
+  text-transform:uppercase;color:#333;margin-bottom:.5rem;}
+.pd-label span{color:var(--white);}
+.size-grid{display:flex;gap:.4rem;flex-wrap:wrap;}
+.size-btn{width:48px;height:48px;display:flex;align-items:center;justify-content:center;
+  border:1px solid #1a1a1a;font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.05em;
+  color:#333;cursor:pointer;transition:.15s;background:none;clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);}
+.size-btn:hover,.size-btn.sel{border-color:var(--red);color:var(--red);background:rgba(255,0,0,.07);
+  box-shadow:0 0 8px rgba(255,0,0,.2);}
+.color-grid{display:flex;gap:.55rem;}
+.color-opt{width:30px;height:30px;border:2px solid transparent;cursor:pointer;transition:.15s;}
+.color-opt:hover,.color-opt.sel{border-color:var(--red);box-shadow:0 0 8px rgba(255,0,0,.4);}
+.pd-actions{display:flex;gap:.75rem;}
+.qty-sel{display:flex;align-items:center;border:1px solid #1a1a1a;clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%);}
+.qty-btn{width:42px;height:48px;background:none;border:none;color:var(--white);cursor:pointer;
+  font-size:1.2rem;display:flex;align-items:center;justify-content:center;transition:.15s;}
+.qty-btn:hover{background:rgba(255,0,0,.1);color:var(--red);}
+.qty-val{width:44px;text-align:center;font-family:'Anton',sans-serif;font-size:1.3rem;color:var(--white);}
+.pd-details{border-top:1px solid #0d0d0d;padding-top:1.25rem;}
+.pd-details li{display:flex;align-items:flex-start;gap:.7rem;font-size:.88rem;color:#333;
+  padding:.38rem 0;border-bottom:1px solid #080808;list-style:none;
+  font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+.pd-details li::before{content:'//';color:var(--red);font-size:.7rem;margin-top:.15rem;flex-shrink:0;
+  font-family:'Bebas Neue',sans-serif;letter-spacing:0;}
+
+/* CART */
+.cart-layout{display:grid;grid-template-columns:1fr 360px;}
+.cart-items-col{border-right:1px solid var(--border);padding:2rem;}
+.cart-item{display:grid;grid-template-columns:86px 1fr auto;gap:1.25rem;
+  align-items:center;padding:1.4rem 0;border-bottom:1px solid var(--border);}
+.cart-thumb{width:86px;height:104px;overflow:hidden;border:1px solid #0d0d0d;position:relative;}
+.cart-thumb img{width:100%;height:100%;object-fit:cover;filter:brightness(.85) contrast(1.1);}
+.cart-item-name{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--white);margin-bottom:.25rem;}
+.cart-item-meta{font-size:.72rem;color:#333;margin-bottom:.65rem;letter-spacing:.08em;
+  text-transform:uppercase;font-family:'Barlow Condensed',sans-serif;font-weight:600;}
+.cart-qty{display:flex;align-items:center;gap:.6rem;}
+.cqb{width:26px;height:26px;background:#0d0d0d;border:1px solid #1a1a1a;
+  color:var(--white);cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;transition:.15s;}
+.cqb:hover{border-color:var(--red);color:var(--red);}
+.c-item-price{font-family:'Anton',sans-serif;font-size:1.3rem;color:var(--red);text-align:right;}
+.c-remove{font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:#1a1a1a;
+  background:none;border:none;cursor:pointer;display:block;text-align:right;margin-top:.35rem;
+  transition:.2s;font-family:'Bebas Neue',sans-serif;}
+.c-remove:hover{color:var(--red);}
+.cart-summary-col{padding:2rem;background:#060606;position:sticky;top:60px;height:fit-content;
+  border-left:1px solid var(--border);}
+.cart-summary-col h3{font-family:'Anton',sans-serif;font-size:1.6rem;font-weight:400;
+  text-transform:uppercase;letter-spacing:.04em;margin-bottom:1.5rem;padding-bottom:1rem;
+  border-bottom:1px solid var(--border);}
+.sum-row{display:flex;justify-content:space-between;font-size:.88rem;color:#333;padding:.45rem 0;
+  font-family:'Bebas Neue',sans-serif;letter-spacing:.1em;text-transform:uppercase;}
+.sum-row.total{font-family:'Anton',sans-serif;font-size:1.4rem;color:var(--white);
+  border-top:2px solid var(--red);margin-top:.5rem;padding-top:.9rem;
+  text-shadow:0 0 10px rgba(255,0,0,.15);}
+.sum-row.total span:last-child{color:var(--red);}
+.promo-row{display:flex;gap:0;margin:1.5rem 0;}
+.promo-row input{flex:1;background:#080808;border:1px solid #1a1a1a;border-right:none;
+  color:var(--white);font-family:'Barlow Condensed',sans-serif;font-size:.9rem;
+  padding:.7rem 1rem;outline:none;letter-spacing:.06em;}
+.promo-row input:focus{border-color:var(--red);}
+.promo-row input::placeholder{color:#1a1a1a;}
+.promo-row button{background:#111;border:1px solid #1a1a1a;color:#333;
+  font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:.18em;
+  text-transform:uppercase;padding:.7rem 1rem;cursor:pointer;transition:.2s;}
+.promo-row button:hover{color:var(--white);border-color:#333;}
+
+/* ABOUT */
+.about-hero{padding:5rem 2rem;max-width:900px;margin:0 auto;text-align:center;}
+.about-hero h1{font-family:'Anton',sans-serif;font-size:clamp(3.5rem,9vw,7.5rem);
+  font-weight:400;text-transform:uppercase;line-height:.88;margin-bottom:1.5rem;
+  letter-spacing:.01em;text-shadow:2px 2px 0 rgba(255,0,0,.2);}
+.about-hero h1 em{font-style:normal;-webkit-text-stroke:3px var(--red);color:transparent;
+  text-shadow:none;filter:drop-shadow(0 0 15px rgba(255,0,0,.5));}
+.about-hero p{font-size:1.05rem;line-height:1.85;color:#444;max-width:600px;margin:0 auto;
+  font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px;background:#0a0a0a;}
+.about-block{background:var(--black);padding:2.5rem;}
+.about-block h3{font-family:'Anton',sans-serif;font-size:1.8rem;font-weight:400;
+  text-transform:uppercase;letter-spacing:.04em;margin-bottom:1rem;
+  text-shadow:1px 1px 0 rgba(255,0,0,.2);}
+.about-block p{font-size:.9rem;line-height:1.8;color:#444;font-weight:600;
+  letter-spacing:.03em;text-transform:uppercase;}
+.about-block.hi{background:#060606;border-left:4px solid var(--red);
+  box-shadow:-4px 0 20px rgba(255,0,0,.1);}
+.val-list{list-style:none;display:flex;flex-direction:column;gap:.75rem;margin-top:1rem;}
+.val-list li{display:flex;gap:.75rem;font-size:.88rem;line-height:1.6;color:#444;
+  font-weight:600;letter-spacing:.03em;text-transform:uppercase;}
+.val-list li::before{content:'//';color:var(--red);flex-shrink:0;
+  font-family:'Bebas Neue',sans-serif;font-size:.85rem;}
+
+/* FEATURE BANNER */
+.feat-banner{display:grid;grid-template-columns:1fr 1fr;min-height:420px;overflow:hidden;
+  border-top:3px solid var(--red);border-bottom:3px solid var(--red);
+  box-shadow:0 0 30px rgba(255,0,0,.2);}
+.feat-banner-img{position:relative;overflow:hidden;}
+.feat-banner-img img{width:100%;height:100%;object-fit:cover;display:block;
+  filter:brightness(.7) contrast(1.2) saturate(.8);transition:transform .5s;}
+.feat-banner-img:hover img{transform:scale(1.04);}
+.feat-banner-img::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(to right,transparent 60%,var(--black) 100%),
+    linear-gradient(to top,rgba(255,0,0,.1) 0%,transparent 60%);}
+.feat-banner-content{padding:3rem;display:flex;flex-direction:column;justify-content:center;gap:1.1rem;background:var(--black);}
+.eyebrow{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.38em;
+  color:var(--red);display:flex;align-items:center;gap:.6rem;
+  text-shadow:0 0 10px rgba(255,0,0,.5);}
+.eyebrow::before{content:'';display:inline-block;width:24px;height:3px;background:var(--red);
+  box-shadow:0 0 8px rgba(255,0,0,.8);}
+.feat-banner-content h2{font-family:'Anton',sans-serif;font-size:clamp(2.5rem,4.5vw,3.8rem);
+  font-weight:400;text-transform:uppercase;line-height:.9;letter-spacing:.02em;
+  text-shadow:1px 1px 0 rgba(255,0,0,.15);}
+.feat-banner-content p{font-size:.92rem;line-height:1.75;color:#444;font-weight:600;
+  text-transform:uppercase;letter-spacing:.04em;max-width:380px;}
+
+/* NEWSLETTER */
+.newsletter{background:var(--red);padding:3.5rem 2rem;display:flex;flex-direction:column;
+  align-items:center;text-align:center;gap:1.5rem;position:relative;overflow:hidden;
+  box-shadow:0 0 60px rgba(255,0,0,.3);}
+.newsletter::before{content:'JOIN THE STREETS';position:absolute;
+  font-family:'Anton',sans-serif;font-size:7rem;color:rgba(0,0,0,.15);
+  pointer-events:none;letter-spacing:-.02em;white-space:nowrap;text-align:center;}
+.newsletter h2{font-family:'Anton',sans-serif;font-size:clamp(2rem,4vw,3.2rem);
+  font-weight:400;text-transform:uppercase;color:#fff;position:relative;letter-spacing:.04em;}
+.newsletter p{font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:rgba(255,255,255,.6);font-size:.9rem;position:relative;}
+.nl-form{display:flex;max-width:440px;width:100%;position:relative;}
+.nl-form input{flex:1;background:rgba(0,0,0,.4);border:2px solid rgba(0,0,0,.5);border-right:none;
+  color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:.95rem;
+  padding:.85rem 1.2rem;outline:none;letter-spacing:.06em;text-transform:uppercase;}
+.nl-form input::placeholder{color:rgba(255,255,255,.3);}
+.nl-form button{background:#000;color:#fff;border:2px solid #000;
+  font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.22em;
+  text-transform:uppercase;padding:.85rem 1.4rem;cursor:pointer;transition:.2s;}
+.nl-form button:hover{background:#111;}
+
+/* FOOTER */
+.site-footer{background:#050505;border-top:3px solid var(--red);padding:2.5rem 2rem;
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:2rem;
+  box-shadow:0 -10px 40px rgba(255,0,0,.1);}
+.ft-brand h3{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--white);margin-bottom:.4rem;
+  text-shadow:0 0 15px rgba(255,0,0,.4);}
+.ft-brand h3 span{color:var(--red);}
+.ft-brand p{font-size:.82rem;line-height:1.7;color:#2a2a2a;max-width:240px;
+  font-weight:600;letter-spacing:.04em;text-transform:uppercase;}
+.ft-col h4{font-family:'Bebas Neue',sans-serif;font-size:.8rem;letter-spacing:.3em;
+  text-transform:uppercase;color:var(--red);margin-bottom:.85rem;
+  text-shadow:0 0 8px rgba(255,0,0,.4);}
+.ft-col ul{list-style:none;display:flex;flex-direction:column;gap:.4rem;}
+.ft-col ul li button,.ft-col ul li a{font-size:.82rem;color:#222;background:none;border:none;
+  cursor:pointer;text-decoration:none;transition:.15s;text-align:left;
+  font-family:'Barlow Condensed',sans-serif;font-weight:600;letter-spacing:.06em;text-transform:uppercase;}
+.ft-col ul li button:hover,.ft-col ul li a:hover{color:var(--red);}
+.ft-bottom{grid-column:1/-1;border-top:1px solid #0d0d0d;padding-top:1.25rem;
+  display:flex;justify-content:space-between;
+  font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:#1a1a1a;
+  font-family:'Bebas Neue',sans-serif;}
+
+/* TOAST */
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--red);color:#fff;
+  font-family:'Bebas Neue',sans-serif;font-size:.9rem;font-weight:600;letter-spacing:.22em;
+  text-transform:uppercase;padding:.9rem 1.6rem;z-index:9000;opacity:0;
+  transform:translateY(10px);transition:all .25s;pointer-events:none;
+  clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+  box-shadow:0 0 20px rgba(255,0,0,.6);}
+.toast.show{opacity:1;transform:translateY(0);}
+
+/* EMPTY / SUCCESS */
+.cart-empty,.checkout-success{text-align:center;padding:6rem 2rem;}
+.cart-empty h2{font-family:'Anton',sans-serif;font-size:3rem;font-weight:400;
+  text-transform:uppercase;color:#111;margin-bottom:1rem;}
+.cart-empty p{color:#222;margin-bottom:2rem;font-family:'Barlow Condensed',sans-serif;
+  font-weight:600;letter-spacing:.06em;text-transform:uppercase;}
+.checkout-success h1{font-family:'Anton',sans-serif;font-size:3rem;font-weight:400;
+  text-transform:uppercase;color:var(--white);margin-bottom:1rem;
+  text-shadow:1px 1px 0 rgba(255,0,0,.2);}
+.checkout-success p{color:#444;margin-bottom:2rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;}
+.check-icon{width:64px;height:64px;background:var(--red);display:flex;align-items:center;
+  justify-content:center;margin:0 auto 2rem;font-size:1.8rem;
+  clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+  box-shadow:0 0 25px rgba(255,0,0,.6);}
+
+/* CONTACT */
+.contact-input{width:100%;background:#060606;border:1px solid #111;color:var(--white);
+  font-family:'Barlow Condensed',sans-serif;font-size:.95rem;padding:.85rem 1rem;
+  outline:none;transition:.2s;letter-spacing:.06em;}
+.contact-input:focus{border-color:var(--red);box-shadow:0 0 8px rgba(255,0,0,.2);}
+.contact-label{display:block;font-family:'Bebas Neue',sans-serif;font-size:.82rem;
+  letter-spacing:.25em;text-transform:uppercase;color:#333;margin-bottom:.45rem;}
+
+/* DIVIDER */
+.red-divider{height:3px;background:var(--red);box-shadow:0 0 15px rgba(255,0,0,.6);margin:0;}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .pd-wrap{grid-template-columns:1fr;}
+  .cart-layout{grid-template-columns:1fr;}
+  .cart-summary-col{position:static;}
+  .about-grid{grid-template-columns:1fr;}
+  .site-footer{grid-template-columns:1fr 1fr;}
+  .hero-kpis{display:none;}
+  .feat-banner{grid-template-columns:1fr;}
+  .feat-banner-img{height:260px;}
+}
+@media(max-width:640px){
+  .nav-links{display:none;}
+  .site-footer{grid-template-columns:1fr;}
+  .pd-info-side{padding:1.75rem;}
+  .hero-title{font-size:clamp(4rem,12vw,7rem);}
+}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo" onclick="showPage('home')">Small&nbsp;<span>Heath</span></div>
+  <ul class="nav-links">
+    <li><a href="#" onclick="showPage('home');return false;" id="nav-home" class="active-link">Home</a></li>
+    <li><a href="#" onclick="showPage('shop');return false;" id="nav-shop">Tees</a></li>
+    <li><a href="#" onclick="showPage('caps');return false;" id="nav-caps">Caps</a></li>
+    <li><a href="#" onclick="showPage('about');return false;" id="nav-about">About</a></li>
+    <li><a href="#" onclick="showPage('contact');return false;" id="nav-contact">Contact</a></li>
+  </ul>
+  <button class="nav-cart" onclick="showPage('cart')">
+    BAG &nbsp;[<span id="cart-count">0</span>]
+  </button>
+</nav>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-slash"></div>
+    <div class="hero-slash2"></div>
+    <div class="hero-number">SH</div>
+    <p class="hero-eyebrow">Small Heath &nbsp;·&nbsp; Birmingham &nbsp;·&nbsp; Est. Now</p>
+    <h1 class="hero-title">
+      <span class="outline">Born</span><br>
+      <span class="slash">In The</span><br>
+      Streets
+    </h1>
+    <p class="hero-sub">No trends. No compromise. Heavy cotton built for people who don't ask permission.</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary btn-xl" onclick="showPage('shop')">Shop Tees</button>
+      <button class="btn btn-outline btn-xl" onclick="showPage('caps')">Shop Caps</button>
+    </div>
+    <div class="hero-kpis">
+      <div><div class="kpi-val">380<span>g</span></div><div class="kpi-label">Cotton Weight</div></div>
+      <div><div class="kpi-val"><span>£</span>0</div><div class="kpi-label">Compromises Made</div></div>
+      <div><div class="kpi-val">100<span>%</span></div><div class="kpi-label">Street Ready</div></div>
+    </div>
+  </section>
+
+  <div class="ticker">
+    <div class="ticker-inner">
+      <span>No Hype</span><span class="dot">///</span>
+      <span>Just Weight</span><span class="dot">///</span>
+      <span>Built for the Streets</span><span class="dot">///</span>
+      <span>Small Heath</span><span class="dot">///</span>
+      <span>Caps Now in BDT</span><span class="dot">///</span>
+      <span>Heavy Cotton Only</span><span class="dot">///</span>
+      <span>No Hype</span><span class="dot">///</span>
+      <span>Just Weight</span><span class="dot">///</span>
+      <span>Built for the Streets</span><span class="dot">///</span>
+      <span>Small Heath</span><span class="dot">///</span>
+      <span>Caps Now in BDT</span><span class="dot">///</span>
+      <span>Heavy Cotton Only</span><span class="dot">///</span>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Latest <span class="r">Drops</span></h2>
+      <button class="btn btn-outline" onclick="showPage('shop')">All Tees →</button>
+    </div>
+    <div class="product-grid" id="home-tees"></div>
+  </section>
+
+  <div class="red-divider"></div>
+
+  <div class="feat-banner">
+    <div class="feat-banner-img">
+      <img src="https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=900&q=85" alt="Caps" loading="lazy">
+    </div>
+    <div class="feat-banner-content">
+      <p class="eyebrow">New Category</p>
+      <h2>Caps.<br>Made for<br>the Streets.</h2>
+      <p>35 styles. Snapbacks, fitted, bucket, trucker. All priced in BDT. Same obsessive quality as the tees.</p>
+      <div style="margin-top:.8rem;"><button class="btn btn-primary btn-lg" onclick="showPage('caps')">Shop Caps →</button></div>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Featured <span class="r">Caps</span></h2>
+      <button class="btn btn-outline" onclick="showPage('caps')">All Caps →</button>
+    </div>
+    <div class="product-grid" id="home-caps"></div>
+  </section>
+
+  <div class="newsletter">
+    <h2>Get on the List</h2>
+    <p>Early access. Drop alerts. No noise.</p>
+    <div class="nl-form">
+      <input type="email" placeholder="Your Email" id="nl-email">
+      <button onclick="nlSubscribe()">Join</button>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="ft-brand"><h3>Small <span>Heath</span></h3><p>Heavy cotton. Street-built. No compromise.</p></div>
+    <div class="ft-col"><h4>Shop</h4><ul><li><button onclick="showPage('shop')">All Tees</button></li><li><button onclick="showPage('caps')">All Caps</button></li><li><button onclick="showPage('shop')">New Drops</button></li></ul></div>
+    <div class="ft-col"><h4>Brand</h4><ul><li><button onclick="showPage('about')">About</button></li><li><button onclick="showPage('contact')">Contact</button></li></ul></div>
+    <div class="ft-col"><h4>Help</h4><ul><li><a href="#">Shipping</a></li><li><a href="#">Returns</a></li><li><a href="#">Size Guide</a></li></ul></div>
+    <div class="ft-bottom"><span>© 2025 Small Heath. All Rights Reserved.</span><span>Privacy · Terms</span></div>
+  </footer>
+</div>
+
+<!-- TEES -->
+<div class="page" id="page-shop">
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Tee <span class="r">Collection</span></h2>
+      <select class="sort-sel" id="tee-sort" onchange="renderTees()">
+        <option value="default">Sort: Default</option>
+        <option value="price-low">Price ↑</option>
+        <option value="price-high">Price ↓</option>
+        <option value="new">Newest</option>
+      </select>
+    </div>
+    <div class="product-grid" id="shop-tees"></div>
+  </section>
+  <footer class="site-footer"><div class="ft-brand"><h3>Small <span>Heath</span></h3></div><div class="ft-col"><h4>Navigate</h4><ul><li><button onclick="showPage('home')">Home</button></li><li><button onclick="showPage('caps')">Caps</button></li></ul></div><div class="ft-col"><h4>Help</h4><ul><li><a href="#">Shipping</a></li><li><a href="#">Returns</a></li></ul></div><div class="ft-col"></div><div class="ft-bottom"><span>© 2025 Small Heath</span></div></footer>
+</div>
+
+<!-- CAPS -->
+<div class="page" id="page-caps">
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Cap <span class="r">Collection</span></h2>
+      <select class="sort-sel" id="cap-sort" onchange="renderCaps()">
+        <option value="default">Sort: Default</option>
+        <option value="price-low">Price ↑</option>
+        <option value="price-high">Price ↓</option>
+        <option value="new">Newest</option>
+      </select>
+    </div>
+    <div class="product-grid" id="shop-caps"></div>
+  </section>
+  <footer class="site-footer"><div class="ft-brand"><h3>Small <span>Heath</span></h3></div><div class="ft-col"><h4>Navigate</h4><ul><li><button onclick="showPage('home')">Home</button></li><li><button onclick="showPage('shop')">Tees</button></li></ul></div><div class="ft-col"><h4>Help</h4><ul><li><a href="#">Sizing</a></li><li><a href="#">Returns</a></li></ul></div><div class="ft-col"></div><div class="ft-bottom"><span>© 2025 Small Heath</span></div></footer>
+</div>
+
+<!-- PRODUCT DETAIL -->
+<div class="page" id="page-product">
+  <div class="pd-wrap" id="pd-content"></div>
+</div>
+
+<!-- ABOUT -->
+<div class="page" id="page-about">
+  <div class="about-hero">
+    <h1>Built from the<br><em>Ground Up</em></h1>
+    <p>Small Heath is not a brand. It's a territory. A mindset. A refusal to accept anything that isn't built right.</p>
+  </div>
+  <div class="about-grid">
+    <div class="about-block hi"><h3>The Story</h3><p>Started with one design and one conviction — that the streets deserve better than what they're getting. No investor decks. No mood boards. Just fabric, a press, and a standard that doesn't move.</p><p style="margin-top:1rem;">Every piece asks one question: would someone wear this every day without thinking twice?</p></div>
+    <div class="about-block"><h3>The Standard</h3><ul class="val-list"><li>No fast fashion. Every piece survives years, not seasons.</li><li>380gsm minimum. We don't do thin.</li><li>Fair production. We know every hand that touches the cloth.</li><li>No trends. What we make looks right five years from now.</li><li>Real sizing. Tested on real bodies. Not mannequins.</li></ul></div>
+    <div class="about-block"><h3>The Fabric</h3><p>100% ring-spun cotton from certified mills. 380gsm standard — nearly double the industry average. It drapes different. Feels different. You'll know the first time you put it on.</p></div>
+    <div class="about-block hi"><h3>The Rule</h3><p>We drop twice a year. That's it. No constant refreshes. No chasing algorithms. When it's gone, it's gone. We'd rather run out than put our name on something that isn't built right.</p><div style="margin-top:1.5rem;"><button class="btn btn-primary btn-lg" onclick="showPage('shop')">Shop Now →</button></div></div>
+  </div>
+  <footer class="site-footer"><div class="ft-brand"><h3>Small <span>Heath</span></h3></div><div class="ft-col"><h4>Shop</h4><ul><li><button onclick="showPage('shop')">Tees</button></li><li><button onclick="showPage('caps')">Caps</button></li></ul></div><div class="ft-col"><h4>Help</h4><ul><li><a href="#">Returns</a></li></ul></div><div class="ft-col"><h4>Contact</h4><ul><li><button onclick="showPage('contact')">Email Us</button></li></ul></div><div class="ft-bottom"><span>© 2025 Small Heath</span></div></footer>
+</div>
+
+<!-- CONTACT -->
+<div class="page" id="page-contact">
+  <section class="section" style="max-width:680px;margin:0 auto;">
+    <div class="section-header" style="margin-top:2rem;"><h2 class="section-title">Get in <span class="r">Touch</span></h2></div>
+    <p style="color:#333;margin-bottom:2rem;line-height:1.7;font-weight:600;letter-spacing:.05em;text-transform:uppercase;font-size:.9rem;">Orders. Wholesale. Press. We read everything. We reply within 24 hours.</p>
+    <div style="display:grid;gap:1rem;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div><label class="contact-label">First Name</label><input class="contact-input" id="c-fname" type="text" placeholder="YOUR NAME"></div>
+        <div><label class="contact-label">Last Name</label><input class="contact-input" id="c-lname" type="text" placeholder="LAST NAME"></div>
+      </div>
+      <div><label class="contact-label">Email</label><input class="contact-input" id="c-email" type="email" placeholder="YOU@EXAMPLE.COM"></div>
+      <div><label class="contact-label">Subject</label><select class="contact-input" style="cursor:pointer;"><option>Order enquiry</option><option>Wholesale / stocking</option><option>Press & media</option><option>Something else</option></select></div>
+      <div><label class="contact-label">Message</label><textarea class="contact-input" id="c-msg" rows="5" placeholder="WRITE YOUR MESSAGE..." style="resize:vertical;"></textarea></div>
+      <div><button class="btn btn-primary btn-xl" onclick="submitContact()">Send It →</button></div>
+    </div>
+    <div style="margin-top:2.5rem;padding-top:2rem;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+      <div><div style="font-family:'Bebas Neue',sans-serif;font-size:.8rem;letter-spacing:.25em;text-transform:uppercase;color:var(--red);margin-bottom:.4rem;text-shadow:0 0 8px rgba(255,0,0,.4);">Email</div><div style="color:#555;font-size:.9rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;">hello@smallheath.co.uk</div></div>
+      <div><div style="font-family:'Bebas Neue',sans-serif;font-size:.8rem;letter-spacing:.25em;text-transform:uppercase;color:var(--red);margin-bottom:.4rem;text-shadow:0 0 8px rgba(255,0,0,.4);">Response Time</div><div style="color:#555;font-size:.9rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;">Within 24 Hours</div></div>
+    </div>
+  </section>
+  <footer class="site-footer" style="margin-top:3rem;"><div class="ft-brand"><h3>Small <span>Heath</span></h3></div><div class="ft-col"><h4>Shop</h4><ul><li><button onclick="showPage('shop')">Tees</button></li><li><button onclick="showPage('caps')">Caps</button></li></ul></div><div class="ft-col"><h4>Help</h4><ul><li><a href="#">Returns</a></li></ul></div><div class="ft-col"></div><div class="ft-bottom"><span>© 2025 Small Heath</span></div></footer>
+</div>
+
+<!-- CART -->
+<div class="page" id="page-cart">
+  <section class="section" style="padding-bottom:0;">
+    <div class="section-header">
+      <h2 class="section-title">Your <span class="r">Bag</span></h2>
+      <button class="btn btn-outline" onclick="showPage('shop')">← Keep Shopping</button>
+    </div>
+  </section>
+  <div class="cart-layout" id="cart-content"></div>
+</div>
+
+<script>
+// ── DATA ──
+const TI = [
+  "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80",
+  "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=600&q=80",
+  "https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=600&q=80",
+  "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=600&q=80",
+  "https://images.unsplash.com/photo-1562157873-818bc0726f68?w=600&q=80",
+  "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=600&q=80",
+  "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=600&q=80",
+  "https://images.unsplash.com/photo-1571945153237-4929e783af4a?w=600&q=80",
+  "https://images.unsplash.com/photo-1622445275576-721325763afe?w=600&q=80",
+  "https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&q=80",
+  "https://images.unsplash.com/photo-1547949003-9792a18a2601?w=600&q=80",
+  "https://images.unsplash.com/photo-1619086303291-0ef7699e4b31?w=600&q=80",
+  "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=600&q=80",
+  "https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=600&q=80",
+  "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=600&q=80",
+  "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=600&q=80",
+  "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=600&q=80",
+  "https://images.unsplash.com/photo-1603252109360-909baaf261ae?w=600&q=80",
+  "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=600&q=80",
+  "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&q=80",
+];
+const CI = [
+  "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&q=80",
+  "https://images.unsplash.com/photo-1575428652377-a2d80e2277fc?w=600&q=80",
+  "https://images.unsplash.com/photo-1521369909029-2afed882baee?w=600&q=80",
+  "https://images.unsplash.com/photo-1534215754734-18e55d13e346?w=600&q=80",
+  "https://images.unsplash.com/photo-1546938576-6e6a64f41a48?w=600&q=80",
+  "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80",
+  "https://images.unsplash.com/photo-1565084888279-aca607bb9b8c?w=600&q=80",
+  "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=600&q=80",
+  "https://images.unsplash.com/photo-1514327605112-b887c0e61c0a?w=600&q=80",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80",
+];
+
+const tees = [
+  {id:1,cat:'tee',name:"Origin Tee",sub:"Heavyweight Classic",price:38,currency:'£',badge:"new",img:TI[0],colors:["#0d0d0d","#f0f0f0","#3a3a5c"],colorNames:["Blackout","Off-White","Navy"],sizes:["XS","S","M","L","XL","XXL"],desc:"Our flagship. 380gsm ring-spun cotton. Boxy. Brutal. Built to last.",details:["380gsm ring-spun cotton","Boxy relaxed fit","Pre-washed, pre-shrunk","Ribbed collar","Made in Portugal"]},
+  {id:2,cat:'tee',name:"Arch Tee",sub:"Graphic Statement",price:44,currency:'£',badge:"hot",img:TI[1],colors:["#0d0d0d","#2c1810"],colorNames:["Black","Brick"],sizes:["S","M","L","XL","XXL"],desc:"The SH crest on a heavyweight drop-shoulder. It commands respect.",details:["340gsm cotton jersey","Drop shoulder oversized","Screen-printed crest","Double-stitched seams","Limited run"]},
+  {id:3,cat:'tee',name:"Ghost Tee",sub:"Minimal Essential",price:35,currency:'£',badge:null,img:TI[2],colors:["#f0ebe0","#888","#0d0d0d"],colorNames:["Cream","Ash","Black"],sizes:["XS","S","M","L","XL"],desc:"No logo. No print. Exceptional cotton. Speaks for itself.",details:["300gsm combed cotton","Regular fit","Zero branding","Curved hem","Colour-fast 50+ washes"]},
+  {id:4,cat:'tee',name:"District Tee",sub:"Street Ready",price:46,currency:'£',badge:"new",img:TI[3],colors:["#2a2a2a","#1a3a2a","#3a2a1a"],colorNames:["Charcoal","Forest","Tan"],sizes:["S","M","L","XL","XXL"],desc:"Tonal print on heavyweight cotton. Inspired by the streets that built us.",details:["360gsm heavyweight cotton","Tonal print","Side seam construction","Tagless printed label","Regular to relaxed fit"]},
+  {id:5,cat:'tee',name:"Foundation Tee",sub:"Core Range",price:32,currency:'£',badge:null,img:TI[4],colors:["#0d0d0d","#f0f0f0","#555"],colorNames:["Black","White","Slate"],sizes:["XS","S","M","L","XL","XXL"],desc:"Lighter than the Origin. Still better than anything at the same price.",details:["260gsm ring-spun cotton","Classic regular fit","Reinforced side seams","Machine washable 40°C","3 core colours"]},
+  {id:6,cat:'tee',name:"Summit Tee",sub:"Collectors Edition",price:58,currency:'£',badge:"hot",img:TI[5],colors:["#0d0d0d","#3a2a1a"],colorNames:["Black","Tobacco"],sizes:["S","M","L","XL"],desc:"420gsm garment-dyed ultra-premium cotton. Our best piece. No argument.",details:["420gsm ultra-premium cotton","Garment-dyed finish","Each piece unique","Dropped oversized sleeve","Numbered — 200 pieces"]},
+  {id:7,cat:'tee',name:"Raw Edge Tee",sub:"Deconstructed",price:42,currency:'£',badge:"new",img:TI[6],colors:["#0d0d0d","#2a2020"],colorNames:["Black","Washed Black"],sizes:["S","M","L","XL","XXL"],desc:"Unfinished hems. Intentionally rough. Deliberately excellent.",details:["350gsm cotton","Raw unfinished hem","Enzyme-washed","Oversized fit","Portugal made"]},
+  {id:8,cat:'tee',name:"Void Tee",sub:"All Black Everything",price:39,currency:'£',badge:null,img:TI[7],colors:["#080808","#1a1a1a"],colorNames:["Jet Black","Washed Black"],sizes:["XS","S","M","L","XL","XXL"],desc:"Two shades of black. One obsession. For those who live in monochrome.",details:["320gsm combed cotton","True black — no fading","Slightly oversized","Clean finish","Unisex cut"]},
+  {id:9,cat:'tee',name:"Chalk Tee",sub:"Bright Essential",price:34,currency:'£',badge:null,img:TI[8],colors:["#f5f5f0","#e8e0d0"],colorNames:["Pure White","Vintage White"],sizes:["XS","S","M","L","XL","XXL"],desc:"White that actually stays white. Tight weave. No shrink. No yellow.",details:["280gsm ring-spun","Anti-yellow treated","Pre-shrunk","Regular fit","60°C machine washable"]},
+  {id:10,cat:'tee',name:"Crest Tee",sub:"Embroidered",price:52,currency:'£',badge:"new",img:TI[9],colors:["#0d0d0d","#f5f5f0","#2a3a2a"],colorNames:["Black","White","Olive"],sizes:["S","M","L","XL","XXL"],desc:"Embroidered SH crest at the chest. The understated flex.",details:["320gsm cotton","12-thread embroidery","Regular structured fit","Reinforced collar","Wash-safe embroidery"]},
+  {id:11,cat:'tee',name:"Overcast Tee",sub:"Grey Scale",price:36,currency:'£',badge:null,img:TI[10],colors:["#888","#555","#333"],colorNames:["Light Grey","Mid Grey","Dark Grey"],sizes:["XS","S","M","L","XL","XXL"],desc:"Three greys. All perfect. That space between black and white.",details:["300gsm melange cotton","Relaxed regular fit","Subtle texture","Side-split hem","All season weight"]},
+  {id:12,cat:'tee',name:"Block Tee",sub:"Colour Blocked",price:48,currency:'£',badge:"hot",img:TI[11],colors:["#0d0d0d","#c0392b","#1a3a2a"],colorNames:["Black/Red","Red Block","Forest Block"],sizes:["S","M","L","XL","XXL"],desc:"Two-tone colour blocking. Cut and sewn. No printing. Pure construction.",details:["360gsm premium cotton","Cut and sewn panels","Contrast stitching","Oversized boxy fit","Limited colourways"]},
+  {id:13,cat:'tee',name:"Pigment Tee",sub:"Dyed & Distressed",price:54,currency:'£',badge:"hot",img:TI[12],colors:["#5a3a2a","#2a3a5a","#3a5a2a"],colorNames:["Rust","Indigo","Sage"],sizes:["S","M","L","XL","XXL"],desc:"Mineral pigment dye. Every piece is different. Own yours.",details:["380gsm heavyweight cotton","Mineral pigment dye","Each piece unique","Heavily washed","Over-dyed seams"]},
+  {id:14,cat:'tee',name:"Washed Out Tee",sub:"Vintage Fade",price:46,currency:'£',badge:"hot",img:TI[13],colors:["#8a7a6a","#6a5a4a","#7a8a6a"],colorNames:["Faded Brown","Faded Khaki","Faded Olive"],sizes:["S","M","L","XL","XXL"],desc:"Looks like you've had it ten years on day one.",details:["360gsm cotton","Stone-wash + enzyme wash","Vintage fading","Relaxed fit","Seam distressing"]},
+  {id:15,cat:'tee',name:"Carbon Tee",sub:"Technical Fabric",price:62,currency:'£',badge:"new",img:TI[14],colors:["#0d0d0d","#333"],colorNames:["Carbon","Graphite"],sizes:["XS","S","M","L","XL","XXL"],desc:"Moisture-wicking. Heavyweight. Incredible drape. Built different.",details:["320gsm cotton-modal blend","Moisture-wicking","Anti-odour treatment","Structured fit","Premium finish"]},
+  {id:16,cat:'tee',name:"Heritage Tee",sub:"Old School Cut",price:40,currency:'£',badge:null,img:TI[15],colors:["#d4a574","#8B7355","#5c4a3a"],colorNames:["Sand","Camel","Brown"],sizes:["XS","S","M","L","XL","XXL"],desc:"Earthy tones. Tight weave. Built to last decades not seasons.",details:["340gsm ring-spun cotton","1970s-inspired cut","Shorter sleeve","Ribbed cuffs","Heavy wash finish"]},
+  {id:17,cat:'tee',name:"Ember Tee",sub:"Warm Tones",price:41,currency:'£',badge:null,img:TI[16],colors:["#8B2020","#5a1a1a","#c0392b"],colorNames:["Ember Red","Deep Red","Crimson"],sizes:["XS","S","M","L","XL","XXL"],desc:"Deep reds that don't fade. Three shades of heat.",details:["300gsm cotton","Colour-lock dye process","Regular fit","Ribbed collar","Reactive-dyed"]},
+  {id:18,cat:'tee',name:"Blank Slate Tee",sub:"Canvas Ready",price:30,currency:'£',badge:null,img:TI[17],colors:["#f5f5f0","#e8d5b0","#d4c5a0"],colorNames:["White","Cream","Oat"],sizes:["XS","S","M","L","XL","XXL"],desc:"Flawless whites and creams. The entry point.",details:["260gsm ring-spun cotton","Classic regular fit","3 light colours","Pre-shrunk","Everyday weight"]},
+  {id:19,cat:'tee',name:"Boxcut Tee",sub:"Architectural Fit",price:44,currency:'£',badge:"new",img:TI[18],colors:["#0d0d0d","#f5f5f0","#4a4a4a"],colorNames:["Black","White","Charcoal"],sizes:["XS","S","M","L","XL","XXL"],desc:"Precision engineered. Dropped shoulder. Hem hits the hip. Every measurement deliberate.",details:["340gsm cotton","Box cut — precision engineered","Dropped shoulder","Clean hem","Unisex sizing"]},
+  {id:20,cat:'tee',name:"Capsule Tee",sub:"Collection Closer",price:65,currency:'£',badge:"hot",img:TI[19],colors:["#0d0d0d","#3a2a1a","#1a2a3a"],colorNames:["Black","Tobacco","Navy"],sizes:["S","M","L","XL"],desc:"420gsm. Garment-dyed. Dropped shoulder. Everything we know. One piece.",details:["420gsm ultra-premium cotton","Garment-dyed","Dropped shoulder","All-over enzyme wash","Numbered — 100 pieces"]},
+];
+
+const caps = [
+  {id:101,cat:'cap',name:"Origin Snapback",sub:"Classic 6-Panel",price:1850,currency:'৳',badge:"new",img:CI[0],colors:["#0d0d0d","#f0f0f0"],colorNames:["Black","White"],sizes:["One Size"],desc:"Structured 6-panel. Embroidered SH crest. The one to start with.",details:["6-panel structured cap","Flat brim","Embroidered front logo","Snapback closure","100% wool blend"]},
+  {id:102,cat:'cap',name:"District Dad Cap",sub:"Unstructured Soft",price:1650,currency:'৳',badge:null,img:CI[1],colors:["#888","#0d0d0d","#3a2a1a"],colorNames:["Stone","Black","Tan"],sizes:["One Size"],desc:"Low-profile unstructured. Worn-in feel from day one. Brass buckle.",details:["Unstructured 6-panel","Low profile","Brass buckle strap","Cotton canvas","Pre-washed"]},
+  {id:103,cat:'cap',name:"Ghost Fitted",sub:"Premium Fitted",price:2200,currency:'৳',badge:"hot",img:CI[2],colors:["#0d0d0d","#1a1a1a"],colorNames:["Jet Black","Washed Black"],sizes:["S/M","L/XL"],desc:"Fully fitted wool cap. No adjusters. No compromise.",details:["Structured 6-panel","Heavyweight wool blend","Full fitted — no adjusters","Flat brim","Sweatband lined"]},
+  {id:104,cat:'cap',name:"Archive Trucker",sub:"Mesh Back",price:1550,currency:'৳',badge:"new",img:CI[3],colors:["#0d0d0d","#d4a574","#2a3a2a"],colorNames:["Black Mesh","Tan Mesh","Camo Mesh"],sizes:["One Size"],desc:"Foam-front trucker. Breathable mesh back. Vintage inspired.",details:["Foam front panel","Mesh back panels","Snapback closure","Structured brim","Breathable all day"]},
+  {id:105,cat:'cap',name:"Heath 5-Panel",sub:"Camp Cap",price:1750,currency:'৳',badge:null,img:CI[4],colors:["#0d0d0d","#3a5a2a","#3a3a5c"],colorNames:["Black","Olive","Navy"],sizes:["One Size"],desc:"Slim 5-panel camp cap. Unstructured crown. Minimal and precise.",details:["5-panel construction","Unstructured crown","Woven label back","Cotton twill","Strapback closure"]},
+  {id:106,cat:'cap',name:"Carbon Bucket",sub:"Bucket Hat",price:1950,currency:'৳',badge:"new",img:CI[5],colors:["#0d0d0d","#f0f0f0","#888"],colorNames:["Black","Off-White","Grey"],sizes:["S/M","L/XL"],desc:"Wide-brim bucket in heavy cotton canvas. Collapses into your pocket.",details:["Heavy cotton canvas","Wide brim","Reversible design","Packable","Contrast inner band"]},
+  {id:107,cat:'cap',name:"Crest Snapback",sub:"Logo Forward",price:1900,currency:'৳',badge:"hot",img:CI[6],colors:["#0d0d0d","#2c1810","#1a2a3a"],colorNames:["Black","Chocolate","Navy"],sizes:["One Size"],desc:"SH crest embroidered large on the front. Bold. Hard to ignore.",details:["Structured 6-panel","Large crest embroidery","Curved brim","Snapback","Satin lined interior"]},
+  {id:108,cat:'cap',name:"Block Strapback",sub:"Two-Tone Panel",price:1800,currency:'৳',badge:null,img:CI[7],colors:["#0d0d0d","#c0392b"],colorNames:["Black/Red","Black/Cream"],sizes:["One Size"],desc:"Two-tone front panel. Contrast visor. Works with everything.",details:["6-panel structured cap","Two-tone front panel","Contrast brim underside","Strapback","Puff embroidery"]},
+  {id:109,cat:'cap',name:"Minimal Fitted",sub:"Clean Slate",price:2050,currency:'৳',badge:null,img:CI[8],colors:["#f5f5f0","#888","#0d0d0d"],colorNames:["White","Grey","Black"],sizes:["S/M","L/XL"],desc:"No logo. No embroidery. No badges. Just a perfect fitted cap.",details:["6-panel fitted","Zero branding","Wool-poly blend","Flat brim","True to size"]},
+  {id:110,cat:'cap',name:"Summit Wool",sub:"Winter Ready",price:2450,currency:'৳',badge:"hot",img:CI[9],colors:["#2a2a4a","#0d0d0d","#4a2a2a"],colorNames:["Midnight Blue","Black","Burgundy"],sizes:["One Size"],desc:"100% wool. Structured crown. Classic fit. Built for colder days.",details:["100% wool","Structured fit","Leather strap","Fully lined","Limited colour run"]},
+  {id:111,cat:'cap',name:"Outline Snapback",sub:"Tonal Graphic",price:1700,currency:'৳',badge:"new",img:CI[0],colors:["#0d0d0d","#f5f5f0"],colorNames:["Black","White"],sizes:["One Size"],desc:"Tonal outline embroidered at front. Sharp up close. Mean from a distance.",details:["Tonal embroidery","Structured 6-panel","Curved brim","Snapback","Cotton twill"]},
+  {id:112,cat:'cap',name:"Heritage Corduroy",sub:"Classic Texture",price:1950,currency:'৳',badge:null,img:CI[1],colors:["#8B7355","#2a3a2a","#4a2a1a"],colorNames:["Camel","Olive","Brown"],sizes:["One Size"],desc:"Wide-wale corduroy with embroidered logo. That texture everyone knows.",details:["Wide-wale corduroy","Structured front panels","Logo embroidery","Strapback","Cotton sweatband"]},
+  {id:113,cat:'cap',name:"Pigment Dad Cap",sub:"Garment Dyed",price:1850,currency:'৳',badge:"hot",img:CI[2],colors:["#5a3a2a","#2a4060","#3a5a3a"],colorNames:["Rust","Indigo","Sage"],sizes:["One Size"],desc:"Garment-dyed after construction. Every cap is different. Own it.",details:["Cotton twill","Garment-dyed finish","Unstructured","Buckle strap","Pre-distressed brim"]},
+  {id:114,cat:'cap',name:"Washed Trucker",sub:"Retro Mesh",price:1600,currency:'৳',badge:null,img:CI[3],colors:["#8a7a60","#4a4a4a"],colorNames:["Wheat Wash","Slate"],sizes:["One Size"],desc:"Washed foam front. Vintage embroidery. Mesh back for all-day wear.",details:["Washed foam front","Vintage embroidery","Mesh back","Snapback","Curved brim"]},
+  {id:115,cat:'cap',name:"Five Panel Camp",sub:"Ripstop Fabric",price:1700,currency:'৳',badge:"new",img:CI[4],colors:["#1a3a2a","#0d0d0d","#2a2a4a"],colorNames:["Olive","Black","Navy"],sizes:["One Size"],desc:"Ripstop nylon 5-panel. Lightweight. Packable. Built for movement.",details:["Ripstop nylon","5-panel construction","Packable","Strapback","Woven badge"]},
+  {id:116,cat:'cap',name:"Contrast Brim",sub:"Two Tone Visor",price:1900,currency:'৳',badge:null,img:CI[5],colors:["#0d0d0d","#1a2a3a"],colorNames:["Black/Red Brim","Navy/Cream Brim"],sizes:["One Size"],desc:"Classic structured cap. Contrasting brim. Pairs with everything.",details:["Structured 6-panel","Contrast brim","Snapback","Embroidered flag logo","Cotton twill"]},
+  {id:117,cat:'cap',name:"Velvet Snapback",sub:"Luxury Touch",price:2300,currency:'৳',badge:"hot",img:CI[6],colors:["#2a0a3a","#0d0d0d","#3a0a0a"],colorNames:["Deep Purple","Black","Burgundy"],sizes:["One Size"],desc:"Velvet front panels. Structured. Gold snap closure. Stand out properly.",details:["Velvet front panels","Twill rear panels","Gold snap closure","Embroidered logo","Fully structured"]},
+  {id:118,cat:'cap',name:"Canvas Bucket",sub:"Wide Brim",price:1750,currency:'৳',badge:null,img:CI[7],colors:["#d4a574","#0d0d0d","#3a5a2a"],colorNames:["Sand","Black","Olive"],sizes:["S/M","L/XL"],desc:"Wax-canvas bucket hat. Wide brim. Stitched brim detail.",details:["Heavy cotton canvas","Wax finish","Stitched wide brim","Packable","Internal drawstring"]},
+  {id:119,cat:'cap',name:"Terry Dad Cap",sub:"Summer Weight",price:1550,currency:'৳',badge:"new",img:CI[8],colors:["#f5f5f0","#c0b090","#0d0d0d"],colorNames:["White","Cream","Black"],sizes:["One Size"],desc:"Terry cloth front. Breathable back. Made for warmer days.",details:["Terry cloth front","Mesh vented back","Unstructured","Buckle strap","Garment washed"]},
+  {id:120,cat:'cap',name:"Overdye Fitted",sub:"Vintage Tone",price:2100,currency:'৳',badge:null,img:CI[9],colors:["#6a5040","#4a6080","#3a5a3a"],colorNames:["Faded Brown","Faded Blue","Faded Green"],sizes:["S/M","L/XL"],desc:"Over-dyed after construction. No two identical. Worn-in look from day one.",details:["Wool-cotton blend","Over-dyed finish","Fitted — no adjuster","Flat brim","Vintage texture"]},
+  {id:121,cat:'cap',name:"Nylon Snapback",sub:"Technical Style",price:1950,currency:'৳',badge:"new",img:CI[0],colors:["#0d0d0d","#1a3a2a","#2a2a4a"],colorNames:["Black","Olive","Navy"],sizes:["One Size"],desc:"Lightweight nylon shell. Water-resistant. Clean lines. Technical feel.",details:["Nylon shell","Water-resistant","Structured 6-panel","Flat brim","Snapback adjuster"]},
+  {id:122,cat:'cap',name:"Suede Front Cap",sub:"Texture Play",price:2200,currency:'৳',badge:"hot",img:CI[1],colors:["#5c4a3a","#2a2a2a","#8B7355"],colorNames:["Tan Suede","Black Suede","Camel Suede"],sizes:["One Size"],desc:"Faux suede front. Twill sides and back. Premium tactile finish.",details:["Faux suede front","Twill body","Snapback","Embossed logo","Fully structured"]},
+  {id:123,cat:'cap',name:"Wool Blend Dad",sub:"Autumn Weight",price:2000,currency:'৳',badge:null,img:CI[2],colors:["#4a3a2a","#2a3a4a","#2a2a2a"],colorNames:["Brown Wool","Slate Blue","Charcoal"],sizes:["One Size"],desc:"Wool-cotton blend unstructured dad cap. Comfortable from October through March.",details:["Wool-cotton blend","Unstructured low crown","Leather strap","Herringbone texture","Woven label"]},
+  {id:124,cat:'cap',name:"Camo Trucker",sub:"Print Forward",price:1700,currency:'৳',badge:null,img:CI[3],colors:["#4a5a3a","#3a3a2a"],colorNames:["Green Camo","Desert Camo"],sizes:["One Size"],desc:"Camo-printed foam front. Mesh back. A statement done with restraint.",details:["Camo print front","Mesh rear","Snapback","Minimal front logo","Lightweight foam"]},
+  {id:125,cat:'cap',name:"Leather Strap Cap",sub:"Premium Detail",price:2350,currency:'৳',badge:"hot",img:CI[4],colors:["#0d0d0d","#2a3a5a","#2a4a2a"],colorNames:["Black","Navy","Forest"],sizes:["One Size"],desc:"Genuine leather strapback. The detail that tells you everything.",details:["Structured twill","Real leather strap","Gold clasp","Embroidered logo","Cotton sweatband"]},
+  {id:126,cat:'cap',name:"Pop Strapback",sub:"Bold Colour",price:1800,currency:'৳',badge:"new",img:CI[5],colors:["#c0392b","#1a3a2a","#1a1a6a"],colorNames:["Red","Forest","Royal Blue"],sizes:["One Size"],desc:"Bold colour. Large tonal embroidery. Not for the invisible.",details:["Structured 6-panel","Bold colour options","Tonal embroidery","Strapback","Curved brim"]},
+  {id:127,cat:'cap',name:"Mesh Panel Dad",sub:"Breathable",price:1600,currency:'৳',badge:null,img:CI[6],colors:["#888","#0d0d0d","#f5f5f0"],colorNames:["Grey","Black","Cream"],sizes:["One Size"],desc:"Mesh side panels. Unstructured. Everyday comfort. Minimal logo.",details:["Mesh side panels","Unstructured crown","Buckle strap","Minimal logo","Lightweight"]},
+  {id:128,cat:'cap',name:"Denim Snapback",sub:"Indigo Wash",price:1950,currency:'৳',badge:"new",img:CI[7],colors:["#2a3a6a","#1a1a3a","#3a3a3a"],colorNames:["Indigo","Dark Denim","Raw Denim"],sizes:["One Size"],desc:"Denim-built snapback with raw selvedge-style brim. Wears better with age.",details:["Denim twill","Raw brim edge","Snapback","Embossed badge","Heavy wash"]},
+  {id:129,cat:'cap',name:"Fleece Bucket",sub:"Cold Weather",price:2100,currency:'৳',badge:"hot",img:CI[8],colors:["#0d0d0d","#4a4a6a","#2a4a3a"],colorNames:["Black Fleece","Slate Blue","Forest Green"],sizes:["S/M","L/XL"],desc:"Sherpa fleece bucket for cold weather. Warm, soft, over-engineered.",details:["Sherpa fleece","Packable","Wide structured brim","Elastic inner band","Woven logo"]},
+  {id:130,cat:'cap',name:"Tonal 6-Panel",sub:"Monochrome",price:1850,currency:'৳',badge:null,img:CI[9],colors:["#0d0d0d","#f5f5f0","#888"],colorNames:["All Black","All White","All Grey"],sizes:["One Size"],desc:"Full tonal construction. Fabric, brim, stitching, logo — one colour. Clean.",details:["Tonal all-over","Structured 6-panel","Embossed logo","Snapback","Satin lining"]},
+  {id:131,cat:'cap',name:"Club Snapback",sub:"Archive Inspired",price:2000,currency:'৳',badge:"new",img:CI[0],colors:["#0d0d0d","#2c1810","#1a2a3a"],colorNames:["Black","Brown","Navy"],sizes:["One Size"],desc:"Flat brim. Woven patch. Contrast underbrim. Archive-inspired edge.",details:["Structured flat brim","Woven patch logo","Contrast underbrim","Snapback","6-panel"]},
+  {id:132,cat:'cap',name:"Ripstop Bucket",sub:"Technical",price:1900,currency:'৳',badge:"hot",img:CI[1],colors:["#1a3a2a","#0d0d0d","#3a3a2a"],colorNames:["Olive","Black","Khaki"],sizes:["S/M","L/XL"],desc:"Ripstop nylon bucket. Packable. Taped seams. Technical credibility.",details:["Ripstop nylon","Taped seams","Packable","Wide brim","Drawstring cinch"]},
+  {id:133,cat:'cap',name:"Varsity Strapback",sub:"Collegiate",price:1950,currency:'৳',badge:null,img:CI[2],colors:["#1a1a4a","#2a1a1a","#1a3a1a"],colorNames:["Navy/White","Maroon/Cream","Green/Gold"],sizes:["One Size"],desc:"Varsity two-tone. Contrast stitching. Letterman-inspired credibility.",details:["Two-tone panels","Contrast stitching","Structured brim","Strapback","Appliqué logo"]},
+  {id:134,cat:'cap',name:"Minimal Trucker",sub:"Clean Mesh",price:1600,currency:'৳',badge:"new",img:CI[3],colors:["#f5f5f0","#d4a574","#0d0d0d"],colorNames:["White","Sand","Black"],sizes:["One Size"],desc:"Foam front. Minimal embroidery. Nothing extra. Exactly what you need.",details:["Foam front panel","Mesh back","Minimal branding","Snapback","Lightweight all day"]},
+  {id:135,cat:'cap',name:"SH Logo 6-Panel",sub:"Signature Piece",price:2500,currency:'৳',badge:"hot",img:CI[4],colors:["#0d0d0d","#f5f5f0","#2a3a5a"],colorNames:["Black","White","Navy"],sizes:["One Size"],desc:"The SH logo raised in 3D embroidery. Premium structured twill. The standard.",details:["Premium structured twill","3D raised embroidery","Leather strap closure","Satin interior","Numbered — 150 pieces"]},
+];
+
+// ── STATE ──
+let cart = [], currentItem = null;
+
+// ── CART ──
+function addToCart(id, size, color, qty=1) {
+  const all = [...tees, ...caps];
+  const item = all.find(p => p.id === id);
+  if (!item) return;
+  const key = `${id}-${size}-${color}`;
+  const ex = cart.find(i => i.key === key);
+  if (ex) ex.qty += qty; else cart.push({key,id,size,color,qty,item});
+  updateCartCount();
+  showToast(`// ${item.name} — Added to Bag`);
+}
+function removeFromCart(key) { cart = cart.filter(i => i.key !== key); updateCartCount(); renderCart(); }
+function updateQty(key, delta) {
+  const i = cart.find(x => x.key === key);
+  if (i) { i.qty = Math.max(1, i.qty + delta); renderCart(); }
+}
+function updateCartCount() {
+  document.getElementById('cart-count').textContent = cart.reduce((s,i) => s+i.qty, 0);
+}
+
+// ── TOAST ──
+let toastT;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── PAGES ──
+function showPage(pg) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + pg).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active-link'));
+  const nav = document.getElementById('nav-' + pg);
+  if (nav) nav.classList.add('active-link');
+  if (pg === 'home') renderHomeProducts();
+  if (pg === 'shop') renderTees();
+  if (pg === 'caps') renderCaps();
+  if (pg === 'cart') renderCart();
+}
+
+// ── CARD ──
+function priceFmt(p) { return p.currency + p.price.toLocaleString('en-BD'); }
+function cardHTML(p) {
+  const dots = p.colors.map(c => `<div class="color-dot" style="background:${c}"></div>`).join('');
+  const badge = p.badge ? `<div class="badge badge-${p.badge}">${p.badge==='hot'?'// HOT':p.badge==='new'?'// NEW':'// LTD'}</div>` : '';
+  return `
+    <div class="product-card" onclick="openItem(${p.id})">
+      <div class="product-img-wrap">
+        ${badge}
+        <img src="${p.img}" alt="${p.name}" loading="lazy"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="product-img-fallback" style="display:none;">${p.name.split(' ')[0]}</div>
+      </div>
+      <div class="product-info">
+        <div class="product-name">${p.name}</div>
+        <div class="product-sub">${p.sub}</div>
+        <div class="product-price-row">
+          <div class="product-price">${priceFmt(p)}</div>
+          <div class="color-dots">${dots}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── RENDER ──
+function renderHomeProducts() {
+  const ht = document.getElementById('home-tees');
+  const hc = document.getElementById('home-caps');
+  if (ht) ht.innerHTML = tees.slice(0,8).map(cardHTML).join('');
+  if (hc) hc.innerHTML = caps.slice(0,8).map(cardHTML).join('');
+}
+function sortItems(arr, val) {
+  const s = [...arr];
+  if (val==='price-low')  s.sort((a,b)=>a.price-b.price);
+  if (val==='price-high') s.sort((a,b)=>b.price-a.price);
+  if (val==='new') s.sort((a,b)=>(b.badge==='new'?1:0)-(a.badge==='new'?1:0));
+  return s;
+}
+function renderTees() {
+  const el = document.getElementById('shop-tees');
+  if (el) el.innerHTML = sortItems(tees, document.getElementById('tee-sort')?.value||'default').map(cardHTML).join('');
+}
+function renderCaps() {
+  const el = document.getElementById('shop-caps');
+  if (el) el.innerHTML = sortItems(caps, document.getElementById('cap-sort')?.value||'default').map(cardHTML).join('');
+}
+
+// ── OPEN ITEM ──
+function openItem(id) {
+  currentItem = [...tees,...caps].find(p=>p.id===id);
+  if (!currentItem) return;
+  const p = currentItem;
+  const sizeBtns = p.sizes.map((s,i)=>`<button class="size-btn ${i===0?'sel':''}" onclick="selSize('${s}',this)">${s}</button>`).join('');
+  const colorBtns = p.colors.map((c,i)=>`<div class="color-opt ${i===0?'sel':''}" style="background:${c}" onclick="selColor(${i},this)" title="${p.colorNames[i]}"></div>`).join('');
+  const details = p.details.map(d=>`<li>${d}</li>`).join('');
+  const back = p.cat==='cap'?'caps':'shop';
+  const backLbl = p.cat==='cap'?'Caps':'Tees';
+  document.getElementById('pd-content').innerHTML=`
+    <div class="pd-img-side" style="min-height:520px;">
+      <img src="${p.img}" alt="${p.name}" onerror="this.style.display='none';this.parentElement.style.background='#080808'">
+    </div>
+    <div class="pd-info-side">
+      <div class="pd-breadcrumb">
+        <button onclick="showPage('${back}')">${backLbl}</button>
+        &nbsp;//&nbsp; <span style="color:var(--red)">${p.name}</span>
+      </div>
+      <h1 class="pd-name">${p.name}</h1>
+      <div class="pd-price">${priceFmt(p)}</div>
+      <p class="pd-desc">${p.desc}</p>
+      <div>
+        <div class="pd-label">Colour: <span id="sel-color">${p.colorNames[0]}</span></div>
+        <div class="color-grid">${colorBtns}</div>
+      </div>
+      <div>
+        <div class="pd-label">Size: <span id="sel-size">${p.sizes[0]}</span></div>
+        <div class="size-grid">${sizeBtns}</div>
+      </div>
+      <div class="pd-actions">
+        <div class="qty-sel">
+          <button class="qty-btn" onclick="chgQty(-1)">−</button>
+          <span class="qty-val" id="pd-qty">1</span>
+          <button class="qty-btn" onclick="chgQty(1)">+</button>
+        </div>
+        <button class="btn btn-primary" style="flex:1;font-size:1.05rem;" onclick="addFromDetail()">Add to Bag →</button>
+      </div>
+      <ul class="pd-details">${details}</ul>
+    </div>`;
+  showPage('product');
+  document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active-link'));
+}
+function selSize(s,el){document.querySelectorAll('.size-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');document.getElementById('sel-size').textContent=s;}
+function selColor(i,el){document.querySelectorAll('.color-opt').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');document.getElementById('sel-color').textContent=currentItem.colorNames[i];}
+function chgQty(d){const el=document.getElementById('pd-qty');el.textContent=Math.max(1,parseInt(el.textContent)+d);}
+function addFromDetail(){
+  if(!currentItem)return;
+  addToCart(currentItem.id,document.getElementById('sel-size').textContent,document.getElementById('sel-color').textContent,parseInt(document.getElementById('pd-qty').textContent));
+}
+
+// ── CART ──
+function renderCart() {
+  const el = document.getElementById('cart-content');
+  if (!el) return;
+  if (!cart.length) {
+    el.innerHTML=`<div class="cart-empty" style="grid-column:1/-1">
+      <h2>Bag Is Empty</h2><p>You haven't added anything yet. Fix that.</p>
+      <button class="btn btn-primary btn-xl" onclick="showPage('shop')" style="margin-right:.75rem">Shop Tees</button>
+      <button class="btn btn-outline btn-xl" onclick="showPage('caps')">Shop Caps</button>
+    </div>`;
+    return;
+  }
+  const items = cart.map(i=>`
+    <div class="cart-item">
+      <div class="cart-thumb"><img src="${i.item.img}" alt="${i.item.name}" onerror="this.parentElement.style.background='#111'"></div>
+      <div>
+        <div class="cart-item-name">${i.item.name}</div>
+        <div class="cart-item-meta">Size: ${i.size} · ${i.color}</div>
+        <div class="cart-qty">
+          <button class="cqb" onclick="updateQty('${i.key}',-1)">−</button>
+          <span style="font-family:'Anton',sans-serif;color:var(--white);font-size:1rem;">${i.qty}</span>
+          <button class="cqb" onclick="updateQty('${i.key}',1)">+</button>
+        </div>
+      </div>
+      <div>
+        <div class="c-item-price">${i.item.currency}${(i.item.price*i.qty).toLocaleString('en-BD')}</div>
+        <button class="c-remove" onclick="removeFromCart('${i.key}')">// Remove</button>
+      </div>
+    </div>`).join('');
+  const teeTotal = cart.filter(i=>i.item.cat==='tee').reduce((s,i)=>s+i.item.price*i.qty,0);
+  const capTotal = cart.filter(i=>i.item.cat==='cap').reduce((s,i)=>s+i.item.price*i.qty,0);
+  el.innerHTML=`
+    <div class="cart-items-col">
+      ${items}
+      <div style="padding-top:1.25rem;"><button class="btn btn-outline" onclick="showPage('shop')">← Back to Tees</button></div>
+    </div>
+    <div class="cart-summary-col">
+      <h3>Order Summary</h3>
+      ${teeTotal>0?`<div class="sum-row"><span>Tees</span><span>£${teeTotal.toFixed(2)}</span></div>`:''}
+      ${capTotal>0?`<div class="sum-row"><span>Caps</span><span>৳${capTotal.toLocaleString('en-BD')}</span></div>`:''}
+      <div class="sum-row"><span>Shipping</span><span style="color:var(--red)">At Checkout</span></div>
+      <div class="sum-row total"><span>Total Items</span><span>${cart.reduce((s,i)=>s+i.qty,0)}</span></div>
+      <div class="promo-row"><input type="text" placeholder="PROMO CODE" id="promo-in"><button onclick="applyPromo()">Apply</button></div>
+      <button class="btn btn-primary btn-full btn-lg" onclick="checkout()">Checkout →</button>
+      <div style="margin-top:.9rem;text-align:center;font-size:.72rem;color:#1a1a1a;letter-spacing:.15em;text-transform:uppercase;font-family:'Bebas Neue',sans-serif;">// Secure Checkout · Free Returns //</div>
+    </div>`;
+}
+function applyPromo(){const c=document.getElementById('promo-in')?.value?.toUpperCase().trim();showToast(c==='SMALLHEATH10'?'// 10% Discount Applied':'// Invalid Code');}
+function checkout(){
+  cart=[];updateCartCount();
+  document.getElementById('page-cart').innerHTML=`
+    <div class="checkout-success">
+      <div class="check-icon">✓</div>
+      <h1>Order Confirmed</h1>
+      <p>// Small Heath confirms your order. Dispatching within 2 business days. //</p>
+      <button class="btn btn-primary btn-xl" onclick="location.reload()">Back to the Streets</button>
+    </div>`;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function nlSubscribe(){const e=document.getElementById('nl-email');if(!e?.value.includes('@')){showToast('// Enter a Valid Email');return;}e.value='';showToast('// You\'re On The List');}
+function submitContact(){const f=document.getElementById('c-fname')?.value,em=document.getElementById('c-email')?.value,m=document.getElementById('c-msg')?.value;if(!f||!em||!m){showToast('// Fill All Fields');return;}showToast('// Message Sent — 24hr Reply');}
+
+renderHomeProducts();
+</script>
+</body>
+</html>
